@@ -102,6 +102,9 @@ describe HockeyApp::App do
       HockeyApp::Version.should_receive(:new).with(@app, @client).and_return(fake_version)
       fake_version.should_receive(:ipa=).with(binary_file)
       fake_version.should_receive(:notes=).with(release_notes)
+      fake_version.should_receive(:notify=).with(:none)
+      fake_version.should_receive(:status=).with(:allow)
+      fake_version.should_receive(:tags=).with("")
       @client.should_receive(:post_new_version).with(fake_version)
       @app.create_version(binary_file, release_notes)
     end

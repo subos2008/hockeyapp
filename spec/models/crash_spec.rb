@@ -37,10 +37,10 @@ describe HockeyApp::Crash do
       @crash.crash_reason_id.should == 135837
       @crash.app_version_id.should == 2
       @crash.app_id.should == 2505
-      @crash.has_log.should be_true
+      @crash.has_log.should be true
       @crash.bundle_version.should == "2"
       @crash.id.should == 5511786
-      @crash.has_description.should be_true
+      @crash.has_description.should be true
       @crash.bundle_short_version.should == "0.2"
       @crash.contact_string.should == ""
       @crash.jail_break.should be_nil

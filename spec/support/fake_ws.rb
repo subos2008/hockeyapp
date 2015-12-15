@@ -27,7 +27,7 @@ module HockeyApp
       return "crash_log"
     end
 
-    def post_new_version app_id, ipa, dsym=nil, notes=nil, notes_type=nil, notify=nil, status=nil
+    def post_new_version app_id, ipa, dsym=nil, notes=nil, notes_type=nil, notify=nil, status=nil, tags=nil
       respond "new_version"
     end
 

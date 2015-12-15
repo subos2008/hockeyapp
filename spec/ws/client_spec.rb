@@ -17,7 +17,7 @@ describe HockeyApp::Client do
       end
 
       it "has a single element " do
-        client.get_apps.should have(2).item
+        expect( client.get_apps.count ).to eq 2
       end
 
       it "returns App objects" do
@@ -32,7 +32,7 @@ describe HockeyApp::Client do
       end
 
       it "has a 10 elements " do
-        client.get_crashes(app).should have(2).items
+        expect( client.get_crashes(app).count ).to eq 2
       end
 
       it "returns Crash objects" do
@@ -47,7 +47,7 @@ describe HockeyApp::Client do
       end
 
       it "has a 7 elements " do
-        client.get_crash_groups(app).should have(2).items
+        expect( client.get_crash_groups(app).count ).to eq 2
       end
 
       it "returns CrashGroup objects" do
@@ -62,7 +62,7 @@ describe HockeyApp::Client do
       end
 
       it "has a 9 elements " do
-        client.get_versions(app).should have(2).items
+        expect( client.get_versions(app).count ).to eq 2
 
       end
 
@@ -100,7 +100,7 @@ describe HockeyApp::Client do
         fake_runtime = Tempfile.new('fake_runtime')
         new_version.ipa= fake_runtime
 
-        ws.should_receive(:post_new_version).with(app.public_identifier, fake_runtime, nil, 'New version', 0, 0, 2).and_return({})
+        ws.should_receive(:post_new_version).with(app.public_identifier, fake_runtime, nil, 'New version', 0, 0, 2, nil).and_return({})
         client.post_new_version new_version
         fake_runtime.unlink
       end
@@ -117,7 +117,7 @@ describe HockeyApp::Client do
         new_version.status = ::HockeyApp::Version::STATUS_TO_SYM.invert[:allow]
 
 
-        ws.should_receive(:post_new_version).with(app.public_identifier, fake_runtime, fake_symbols, "Fake notes", 0, 1, 2).and_return({})
+        ws.should_receive(:post_new_version).with(app.public_identifier, fake_runtime, fake_symbols, "Fake notes", 0, nil, 2, nil).and_return({})
         client.post_new_version new_version
         fake_runtime.unlink
         fake_symbols.unlink
@@ -138,7 +138,7 @@ describe HockeyApp::Client do
 
     describe "remove_app" do
       it "returns expected code" do
-        client.remove_app(app).should be_true
+        client.remove_app(app).should be true
       end
 
     end
