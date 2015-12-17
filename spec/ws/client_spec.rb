@@ -51,6 +51,10 @@ describe HockeyApp::Client do
         client.get_crashes_for_version_between_times(version, Time.now, Time.now)[0].should be_kind_of HockeyApp::Crash
       end
 
+      it "throws a MultiplePagesError exception if there are multiple pages" do
+        expect { client.get_crashes_for_version_between_times(version, Time.now, Time.now, { fake_multi_pages: true })[0] }.to raise_error(HockeyApp::MultiplePagesError)
+      end
+
     end
 
     describe "#get_crash_groups" do

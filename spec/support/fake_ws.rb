@@ -19,7 +19,11 @@ module HockeyApp
     end
 
     def query_crashes_for_version app_id, version_id, options = {}
-      respond "crashes"
+      if options.include?(:fake_multi_pages) then
+        respond "multiple_pages_crashes_page_1"
+      else
+        respond "crashes"
+      end
     end
 
     def get_crash_description app_id, options = {}

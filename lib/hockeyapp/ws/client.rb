@@ -1,4 +1,14 @@
 module HockeyApp
+  class MultiplePagesError < StandardError
+    def initialize(hash)
+      @hash = hash
+    end
+
+    def to_s
+      "More than one page of results received from HockeyApp and pagination is not implemented: received #{@hash["total_pages"]} pages with #{@hash["per_page"]} results per page. #{@hash["total_entries"]} total entries"
+    end
+  end
+
   class Client
 
     def initialize ws
@@ -110,6 +120,11 @@ module HockeyApp
     def assert_success hash
       status = hash["status"]
       raise "Bad Status : #{status}" unless status == "success"
+
+      pages = hash["total_pages"]
+      if pages.present?
+        raise MultiplePagesError.new(hash) if pages > 1
+      end
     end
 
   end
