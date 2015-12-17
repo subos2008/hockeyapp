@@ -17,6 +17,38 @@ module HockeyApp
       crashes_hash["crashes"].map{|crash_hash|Crash.from_hash(crash_hash, app, self)}
     end
 
+    def time_to_string time
+      # Note: DateTime and Time convert differently to strings.
+      # We should handle both.
+      string = time.to_s
+      string = string.sub(/ /, 'T')
+      string = string.sub(/ ?\+.*$/, '')
+      string = string.sub(/ ?UTC$/, '')
+      return string
+    end
+
+    def get_crashes_for_version_between_times version, start_time, end_time, options = {}
+      # The timezone used on hockeyapp's servers is UTC. 
+      # Use a method call to convert to UTC if it's there.
+      # Also convert to Time rather than DateTime if possible.
+      begin
+        start_time = start_time.to_time.utc
+      rescue NoMethodError
+      end
+      begin
+        end_time = end_time.to_time.utc
+      rescue NoMethodError
+      end
+      since_string = time_to_string( start_time )
+      till_string = time_to_string( end_time )
+      # must use double quotes or hockeyapps servers silently error
+      # and return all crashes for the variant.
+      query_string = "[\"#{since_string}\" TO \"#{till_string}\"]'"
+      crashes_hash = ws.query_crashes_for_version version.app.public_identifier, version.id, options.merge( {query: { per_page: 50, query: "created_at:#{query_string}"}})
+      assert_success crashes_hash
+      crashes_hash["crashes"].map{|crash_hash|Crash.from_hash(crash_hash, version.app, self)}
+    end
+
     def get_crashes_for_crash_group group, options = {}
       crashes_hash = ws.get_crashes_for_group group.app.public_identifier, group.id, {query:options}
       assert_success crashes_hash

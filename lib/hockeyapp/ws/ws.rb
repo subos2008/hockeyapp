@@ -33,6 +33,10 @@ module HockeyApp
       self.class.get "/apps/#{app_id}/app_versions/#{version_id}/crash_reasons", options
     end
 
+    def query_crashes_for_version app_id, version_id, options = {}
+      self.class.get "/apps/#{app_id}/app_versions/#{version_id}/crashes/search", options
+    end
+
     def get_crashes_for_group app_id, group_id, options = {}
       self.class.get "/apps/#{app_id}/crash_reasons/#{group_id}", options
     end

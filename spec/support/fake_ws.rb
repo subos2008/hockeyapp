@@ -18,6 +18,9 @@ module HockeyApp
       respond "app_versions"
     end
 
+    def query_crashes_for_version app_id, version_id, options = {}
+      respond "crashes"
+    end
 
     def get_crash_description app_id, options = {}
       return "crash_description"

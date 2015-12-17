@@ -8,6 +8,7 @@ describe HockeyApp::Client do
     let(:ws) {HockeyApp::FakeWS.new}
     let(:client) {HockeyApp::Client.new(ws)}
     let(:app) {HockeyApp::App.from_hash({"public_identifier" => "1234567890abcdef1234567890abcdef"}, client)}
+    let(:version) {HockeyApp::Version.from_hash({"id" => "12345678901234"}, app, client)}
     let(:crash){HockeyApp::Crash.from_hash({"id" => "123456789", "has_description" => true, "has_log" => true}, app, client)}
 
 
@@ -37,6 +38,17 @@ describe HockeyApp::Client do
 
       it "returns Crash objects" do
         client.get_crashes(app)[0].should be_kind_of HockeyApp::Crash
+      end
+
+    end
+
+    describe "#get_crashes_for_version_between_times" do
+      it "returns an Enumerable " do
+        client.get_crashes_for_version_between_times(version, Time.now, Time.now).should be_kind_of Enumerable
+      end
+
+      it "returns Crash objects" do
+        client.get_crashes_for_version_between_times(version, Time.now, Time.now)[0].should be_kind_of HockeyApp::Crash
       end
 
     end

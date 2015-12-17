@@ -29,4 +29,5 @@ describe HockeyApp::WS do
       end
 
   end
+
 end

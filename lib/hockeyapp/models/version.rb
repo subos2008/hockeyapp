@@ -58,6 +58,10 @@ module HockeyApp
       @crashes ||= @app.crashes.select{|crash| "#{crash.app_version_id}" == @id.to_s}
     end
 
+    def get_crashes_between_times start_time, end_time
+      client.get_crashes_for_version_between_times(self, start_time, end_time)
+    end
+
     def crash_reasons options = {}
       @crash_groups ||= client.get_crash_groups_for_version(self, options)
     end

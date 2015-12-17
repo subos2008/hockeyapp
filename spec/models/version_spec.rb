@@ -53,7 +53,17 @@ describe HockeyApp::Version do
     @version.crash_reasons
   end
 
+  it "get_crashes_between_times can accept Time and DateTime arguments" do
+    @version.get_crashes_between_times( Time.now, DateTime.now)
+    @version.get_crashes_between_times( DateTime.now, Time.now)
+  end
 
+  it "calls client every time when asked for crashes between times" do
+    @client.should_receive(:get_crashes_for_version_between_times)
+    @version.get_crashes_between_times( Time.now, Time.now)
+    @client.should_receive(:get_crashes_for_version_between_times)
+    @version.get_crashes_between_times( Time.now, Time.now)
+  end
 
   it "can generate a  direct download url for iOS" do
     @app.platform= "iOS"
