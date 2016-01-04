@@ -37,7 +37,7 @@ module HockeyApp
       return string
     end
 
-    def get_crashes_for_version_between_times version, start_time, end_time, options = {}
+    def create_search_query_for_time_period start_time, end_time, page
       # The timezone used on hockeyapp's servers is UTC. 
       # Use a method call to convert to UTC if it's there.
       # Also convert to Time rather than DateTime if possible.
@@ -54,7 +54,27 @@ module HockeyApp
       # must use double quotes or hockeyapps servers silently error
       # and return all crashes for the variant.
       query_string = "[\"#{since_string}\" TO \"#{till_string}\"]'"
-      crashes_hash = ws.query_crashes_for_version version.app.public_identifier, version.id, options.merge( {query: { per_page: 50, query: "created_at:#{query_string}"}})
+      return {query: { page: page, per_page: 50, query: "created_at:#{query_string}"}}
+    end
+
+    def get_crashes_for_version_between_times_paged version, start_time, end_time, page
+      query_hash = create_search_query_for_time_period start_time, end_time, page
+      crashes_hash = ws.query_crashes_for_version version.app.public_identifier, version.id, query_hash
+      assert_success crashes_hash, { allow_paging: true }
+      raise "paging not working correctly: query_hash=#{query_hash}, current_page=#{crashes_hash["current_page"]}" unless(crashes_hash["current_page"].to_i == page)
+      crash_objects = crashes_hash["crashes"].map{|crash_hash|Crash.from_hash(crash_hash, version.app, self)}
+      return {
+        crashes: crash_objects,
+        current_page: crashes_hash["current_page"],
+        total_pages: crashes_hash["total_pages"],
+        total_entries: crashes_hash["total_entries"],
+        per_page: crashes_hash["per_page"]
+      }
+    end
+
+    def get_crashes_for_version_between_times version, start_time, end_time, options = {}
+      query_hash = create_search_query_for_time_period start_time, end_time, 1
+      crashes_hash = ws.query_crashes_for_version version.app.public_identifier, version.id, options.merge( query_hash )
       assert_success crashes_hash
       crashes_hash["crashes"].map{|crash_hash|Crash.from_hash(crash_hash, version.app, self)}
     end
@@ -117,13 +137,15 @@ module HockeyApp
 
     attr_reader :ws
 
-    def assert_success hash
+    def assert_success hash, options = {}
       status = hash["status"]
       raise "Bad Status : #{status}" unless status == "success"
 
-      pages = hash["total_pages"]
-      if pages.present?
-        raise MultiplePagesError.new(hash) if pages > 1
+      unless options.include? :allow_paging then
+        pages = hash["total_pages"]
+        if pages.present?
+          raise MultiplePagesError.new(hash) if pages > 1
+        end
       end
     end
 
